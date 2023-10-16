@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 LABEL org.opencontainers.image.title="haxorof/ansible-core" \
       org.opencontainers.image.description="Ansible Core + additions" \
@@ -14,7 +14,17 @@ ONBUILD USER root
 
 COPY requirements/requirements.txt ./requirements.txt
 
-RUN apt-get clean \
+RUN \
+    apt update \
+    && apt -y install \
+       curl \
+       gnupg \
+    # Instructions for installing 1password cli: https://support.1password.com/install-linux/#get-1password-for-linux
+    && curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /etc/apt/sources.list.d/1password.list \
+    && mkdir -p /etc/debsig/policies/AC2D62742012EA22/ \
+    && curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | tee /etc/debsig/policies/AC2D62742012EA22/1password.policies \
+    && apt-get -y clean \
     && apt-get -y update \
     && apt-get -y install apt-utils \
     && apt-get -y upgrade \
@@ -28,6 +38,8 @@ RUN apt-get clean \
     curl \
     tzdata \
     cargo \
+    rsync \
+    1password-cli \
     # install gosu for a better su+exec command (remove sudo if this works)
     && wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$gosu_version/gosu-amd64" \
     && chmod +x /usr/bin/gosu \
@@ -47,7 +59,7 @@ RUN apt-get clean \
     && echo 'ansible-10000  ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible
 
 RUN gem install bundler
-
+RUN pip3 install jmespath
 WORKDIR /mnt
 
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
