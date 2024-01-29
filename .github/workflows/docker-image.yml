@@ -1,42 +1,121 @@
 name: docker-image
-
 on:
   push:
+    branches:
+      - main
     tags:
       - '*.*.*'
-# on:
-#   pull_request:
-#   release:
-#   push:
-#     branches:
-#       - 'master'
+  schedule:
+    - cron: '0 1 * * 0'
+
+env:
+  IMAGE_NAME: ansible-core
+  LATEST_OS: alpine
+  LATEST_VERSION: v2.13
+  DOCKER_CLI_VERSION: "20.10.14"
+  GOSU_VERSION: "1.14"
 
 jobs:
-
-  build:
-
+  build_push_before_python38:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        os: [almalinux8, alpine, ubuntu]
+        version: [v2.11]
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Build image
-      run: docker build --platform linux/amd64 -t myimage .
+      - name: Prepare
+        id: prep
+        run: |
+          cp requirements/${MATRIX_VERSION}/requirements.txt requirements/requirements.txt
+          TAGS="${IMAGE_NAME}:${MATRIX_VERSION}-${MATRIX_OS}"
+          if [[ "$MATRIX_OS" == "$LATEST_OS" ]]; then
+            TAGS="${TAGS},${IMAGE_NAME}:$MATRIX_VERSION"
+          elif [[ "$MATRIX_OS" == "almalinux8" && "$MATRIX_VERSION" == "v2.11" ]]; then
+            TAGS="${TAGS},${IMAGE_NAME}:latest-${MATRIX_OS}"
+          fi
+          echo "::set-output name=tags::${TAGS}"
+          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        env:
+          MATRIX_OS: ${{ matrix.os }}
+          MATRIX_VERSION: ${{ matrix.version }}
 
-    - name: Log into registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
 
-    - name: Push image
-      run: |
-        IMAGE_ID=ghcr.io/${{ github.repository }}
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-        # Change all uppercase to lowercase
-        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      - name: Build and Push
+        uses: docker/build-push-action@v3.0.0
+        with:
+          labels: |
+            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+            org.opencontainers.image.source=${{ github.repositoryUrl }}
+            org.opencontainers.image.version=${{ matrix.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=${{ github.event.repository.license.name }}
+          build-args: |
+            docker_version=${{ env.DOCKER_CLI_VERSION }}
+            gosu_version=${{ env.GOSU_VERSION }}
+          tags: ${{ steps.prep.outputs.tags }}
+          context: .
+          file: ./Dockerfile.${{ matrix.os }}
+          push: ${{ endsWith(github.ref, '/main') }}
 
-        VERSION=latest
-        if [[ $GITHUB_REF == refs/tags/* ]]; then
-          VERSION=${GITHUB_REF#refs/tags/}
-        fi
+      - name: Output Image Name
+        run: |
+          echo "Built and pushed the following image(s):"
+          echo ${{ steps.prep.outputs.tags }}
 
-        docker tag myimage $IMAGE_ID:$VERSION
-        docker push $IMAGE_ID:$VERSION
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository }}/${{ steps.prep.outputs.tags }}
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          VERSION=latest
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+
+          docker tag ${{ steps.prep.outputs.tags }} $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+
+
+
+
+
+
+
+  # build:
+
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - uses: actions/checkout@v2
+
+  #   - name: Build image
+  #     run: docker build --platform linux/amd64 -t myimage .
+
+  #   - name: Log into registry
+  #     run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+  #   - name: Push image
+  #     run: |
+  #       IMAGE_ID=ghcr.io/${{ github.repository }}
+
+  #       # Change all uppercase to lowercase
+  #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+  #       VERSION=latest
+  #       if [[ $GITHUB_REF == refs/tags/* ]]; then
+  #         VERSION=${GITHUB_REF#refs/tags/}
+  #       fi
+
+  #       docker tag myimage $IMAGE_ID:$VERSION
+  #       docker push $IMAGE_ID:$VERSION
