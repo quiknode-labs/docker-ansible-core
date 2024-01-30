@@ -19,7 +19,7 @@ jobs:
   build_push_before_python38:
     runs-on: ubuntu-latest
     permissions:
-      contents: read|write
+      contents: write
       packages: write
     strategy:
       matrix:
