@@ -18,6 +18,9 @@ env:
 jobs:
   build_push_before_python38:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         os: [almalinux8, alpine, ubuntu]
@@ -31,11 +34,11 @@ jobs:
         run: |
           cp requirements/${MATRIX_VERSION}/requirements.txt requirements/requirements.txt
           TAGS="${IMAGE_NAME}:${MATRIX_VERSION}-${MATRIX_OS}"
-          if [[ "$MATRIX_OS" == "$LATEST_OS" ]]; then
-            TAGS="${TAGS},${IMAGE_NAME}:$MATRIX_VERSION"
-          elif [[ "$MATRIX_OS" == "almalinux8" && "$MATRIX_VERSION" == "v2.11" ]]; then
-            TAGS="${TAGS},${IMAGE_NAME}:latest-${MATRIX_OS}"
-          fi
+          # if [[ "$MATRIX_OS" == "$LATEST_OS" ]]; then
+          #   TAGS="${TAGS},${IMAGE_NAME}:$MATRIX_VERSION"
+          # elif [[ "$MATRIX_OS" == "almalinux8" && "$MATRIX_VERSION" == "v2.11" ]]; then
+          #   TAGS="${TAGS},${IMAGE_NAME}:latest-${MATRIX_OS}"
+          # fi
           echo "::set-output name=tags::${TAGS}"
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
         env:
@@ -49,7 +52,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build and Push
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v5
         with:
           labels: |
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
@@ -60,30 +63,26 @@ jobs:
           build-args: |
             docker_version=${{ env.DOCKER_CLI_VERSION }}
             gosu_version=${{ env.GOSU_VERSION }}
-          tags: ${{ steps.prep.outputs.tags }}
           context: .
           file: ./Dockerfile.${{ matrix.os }}
-          push: ${{ endsWith(github.ref, '/main') }}
+          tags: |
+            ghcr.io/quicknode-labs/docker-ansible-core:${{ matrix.os }}-${{ matrix.version }}
+          push: true
 
-      - name: Output Image Name
-        run: |
-          echo "Built and pushed the following image(s):"
-          echo ${{ steps.prep.outputs.tags }}
 
-      - name: Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/${{ steps.prep.outputs.tags }}
+      # - name: Push image
+      #   run: |
+      #     IMAGE_ID=ghcr.io/quicknode-labs/docker-ansible-core
+      #     # Change all uppercase to lowercase
+      #     IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #     VERSION=latest
+      #     if [[ $GITHUB_REF == refs/tags/* ]]; then
+      #       VERSION=${GITHUB_REF#refs/tags/}
+      #     fi
 
-          VERSION=latest
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
-          fi
-
-          docker tag ${{ steps.prep.outputs.tags }} $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+      #     docker tag ${{ steps.prep.outputs.tags }} $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
 
 
 
