@@ -62,10 +62,6 @@ RUN gem install bundler
 RUN pip3 install jmespath
 WORKDIR /mnt
 
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-RUN apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-RUN apt-get -y update && sudo apt-get -y install packer 
-
 USER ansible-10000
 
 CMD [ "ansible-playbook", "playbook.yml" ]
