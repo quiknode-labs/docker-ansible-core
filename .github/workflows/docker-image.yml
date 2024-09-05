@@ -17,7 +17,6 @@ env:
 
 jobs:
   build_push_python38_and_later:
-    needs: build_push_before_python38
     runs-on: ubuntu-latest
     permissions:
       contents: write
