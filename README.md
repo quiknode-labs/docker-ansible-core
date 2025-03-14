@@ -12,14 +12,11 @@ If you find bugs or got improvements of the container, feel free to submit it [h
 
 ## Simple Tags
 
-- `v2.15-alpine`
 - `v2.15-ubuntu`
-- `v2.15-almalinux8`
 
 ## Shared Tags
 
 - `v2.15`, `latest-alpine`, `latest`
-  - `v2.15-alpine`
 
 ## Additions
 
