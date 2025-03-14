@@ -5,23 +5,10 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    assignees:
-      - "haxorof"
-  - package-ecosystem: pip
-    directory: "/requirements/v2.15"
-    schedule:
-      interval: daily
-    assignees:
-      - "haxorof"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: pip
     directory: "/requirements/v2.16"
     schedule:
       interval: daily
-    assignees:
-      - "haxorof"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
@@ -29,8 +16,6 @@ updates:
     directory: "/requirements/v2.17"
     schedule:
       interval: daily
-    assignees:
-      - "haxorof"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
@@ -38,8 +23,6 @@ updates:
     directory: "/requirements/v2.18"
     schedule:
       interval: daily
-    assignees:
-      - "haxorof"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
