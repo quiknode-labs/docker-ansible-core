@@ -1,0 +1,2 @@
+ansible-core==2.18.3
+mitogen==0.3.22
