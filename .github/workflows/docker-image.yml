@@ -10,7 +10,7 @@ on:
 env:
   IMAGE_NAME: ghcr.io/quiknode-labs/docker-ansible-core
   LATEST_OS: alpine
-  LATEST_VERSION: v2.16
+  LATEST_VERSION: v2.18
   DOCKER_CLI_VERSION: "27.1.2"
   GOSU_VERSION: "1.14"
 jobs:
