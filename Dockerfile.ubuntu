@@ -40,13 +40,26 @@ RUN \
     cargo \
     rsync \
     1password-cli \
-    # install gosu for a better su+exec command (remove sudo if this works)
-    && wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$gosu_version/gosu-amd64" \
+    # install gosu for a better su+exec command based on architecture
+    && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+         wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$gosu_version/gosu-amd64"; \
+       elif [ "$(dpkg --print-architecture)" = "arm64" ]; then \
+         wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$gosu_version/gosu-arm64"; \
+       else \
+         echo "Unsupported architecture: $(dpkg --print-architecture)"; exit 1; \
+       fi \
     && chmod +x /usr/bin/gosu \
     && gosu nobody true \
     && python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir -r requirements.txt \
-    && wget -O - https://download.docker.com/linux/static/stable/x86_64/docker-${docker_version}.tgz | tar -xz -C /usr/lib \
+    # download Docker CLI for the appropriate architecture
+    && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+         wget -O - https://download.docker.com/linux/static/stable/x86_64/docker-${docker_version}.tgz | tar -xz -C /usr/lib; \
+       elif [ "$(dpkg --print-architecture)" = "arm64" ]; then \
+         wget -O - https://download.docker.com/linux/static/stable/aarch64/docker-${docker_version}.tgz | tar -xz -C /usr/lib; \
+       else \
+         echo "Unsupported architecture: $(dpkg --print-architecture)"; exit 1; \
+       fi \
     && ln -s /usr/lib/docker/docker /usr/bin/docker \
     && mkdir -p /etc/ansible/roles \
     && echo 'localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3' > /etc/ansible/hosts \
