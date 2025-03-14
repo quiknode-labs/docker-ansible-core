@@ -12,11 +12,11 @@ If you find bugs or got improvements of the container, feel free to submit it [h
 
 ## Simple Tags
 
-- `v2.18-ubuntu`
+- `v2.17-ubuntu`
 
 ## Shared Tags
 
-- `v2.18`, `latest-ubuntu`, `latest`
+- `v2.17`, `latest-ubuntu`, `latest`
 
 ## Additions
 
