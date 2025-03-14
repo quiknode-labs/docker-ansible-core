@@ -6,7 +6,7 @@ on:
     tags:
       - '*.*.*'
   schedule:
-    - cron: '0 1 * *0'
+    - cron: '0 1 * * 0'
 env:
   IMAGE_NAME: ghcr.io/quiknode-labs/docker-ansible-core
   LATEST_OS: alpine
