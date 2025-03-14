@@ -10,7 +10,7 @@ on:
 env:
   IMAGE_NAME: ghcr.io/quiknode-labs/docker-ansible-core
   LATEST_OS: ubuntu
-  LATEST_VERSION: v2.18
+  LATEST_VERSION: v2.17
   DOCKER_CLI_VERSION: "27.1.2"
   GOSU_VERSION: "1.17"
 jobs:
@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu]
-        version: [v2.16, v2.17, v2.18]
+        version: [v2.16, v2.17]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

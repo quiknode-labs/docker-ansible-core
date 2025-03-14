@@ -19,10 +19,3 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
-  - package-ecosystem: pip
-    directory: "/requirements/v2.18"
-    schedule:
-      interval: daily
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
