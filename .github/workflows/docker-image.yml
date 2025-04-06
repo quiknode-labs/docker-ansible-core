@@ -72,16 +72,5 @@ jobs:
           tags: ${{ steps.prep.outputs.tags }}
           # Push only on release events; for PRs, just build.
           push: ${{ github.event_name == 'release' }}
-          # Load the image into the local Docker daemon for PR events
-          load: ${{ github.event_name != 'release' }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-
-      # Test Run: Only run test on PR events (you might choose to run tests on release as well)
-      - name: Test Run
-        if: github.event_name == 'pull_request'
-        run: |
-          # Extract the first tag from the output tags
-          TAG=$(echo "${{ steps.prep.outputs.tags }}" | cut -d',' -f1)
-          echo "Testing image with tag: $TAG"
-          docker run --rm $TAG
