@@ -72,6 +72,8 @@ jobs:
           tags: ${{ steps.prep.outputs.tags }}
           # Push only on release events; for PRs, just build.
           push: ${{ github.event_name == 'release' }}
+          # Load the image into the local Docker daemon for PR events
+          load: ${{ github.event_name != 'release' }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
