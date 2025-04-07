@@ -11,9 +11,14 @@ ONBUILD USER root
 COPY requirements/requirements.txt ./requirements.txt
 COPY entrypoint.sh /entrypoint.sh
 
-# Install prerequisites, add 1Password repo, install 1password-cli, cleanup apt junk
+# Upgrade system packages in one dedicated layer (run less frequently)
 RUN apt-get update && \
     apt-get -y upgrade && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install prerequisites, add 1Password repo, install 1password-cli, cleanup apt junk
+RUN apt-get update && \
     apt-get -y --no-install-recommends install \
       curl \
       gnupg \
