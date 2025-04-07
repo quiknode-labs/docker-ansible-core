@@ -1,80 +1,74 @@
 FROM ubuntu:22.04
 
-LABEL org.opencontainers.image.title="haxorof/ansible-core" \
-      org.opencontainers.image.description="Ansible Core + additions" \
-      org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.title="quiknode-labs/docker-ansible-core" \
+      org.opencontainers.image.description="Ansible Core + additions"
 
-ARG docker_version
-ARG gosu_version
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV DEFAULT_LOCAL_TMP=/var/tmp/.ansible/tmp
+ENV DEBIAN_FRONTEND=noninteractive \
+    DEFAULT_LOCAL_TMP=/var/tmp/.ansible/tmp
 
 ONBUILD USER root
 
 COPY requirements/requirements.txt ./requirements.txt
+COPY entrypoint.sh /entrypoint.sh
 
-RUN \
-    apt update \
-    && apt -y install \
-       curl \
-       gnupg \
-    # Instructions for installing 1password cli: https://support.1password.com/install-linux/#get-1password-for-linux
-    && curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /etc/apt/sources.list.d/1password.list \
-    && mkdir -p /etc/debsig/policies/AC2D62742012EA22/ \
-    && curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | tee /etc/debsig/policies/AC2D62742012EA22/1password.policies \
-    && apt-get -y clean \
-    && apt-get -y update \
-    && apt-get -y install apt-utils \
-    && apt-get -y upgrade \
-    && apt-get -y install \
-    && apt-get -y install ruby-full \
-    sshpass \
-    git \
-    sudo \
-    python3-pip \
-    wget \
-    curl \
-    tzdata \
-    cargo \
-    rsync \
-    1password-cli \
-    # install gosu for a better su+exec command based on architecture
-    && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
-         wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$gosu_version/gosu-amd64"; \
-       elif [ "$(dpkg --print-architecture)" = "arm64" ]; then \
-         wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$gosu_version/gosu-arm64"; \
-       else \
-         echo "Unsupported architecture: $(dpkg --print-architecture)"; exit 1; \
-       fi \
-    && chmod +x /usr/bin/gosu \
-    && gosu nobody true \
-    && python3 -m pip install --no-cache-dir --upgrade pip \
-    && python3 -m pip install --no-cache-dir -r requirements.txt \
-    # download Docker CLI for the appropriate architecture
-    && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
-         wget -O - https://download.docker.com/linux/static/stable/x86_64/docker-${docker_version}.tgz | tar -xz -C /usr/lib; \
-       elif [ "$(dpkg --print-architecture)" = "arm64" ]; then \
-         wget -O - https://download.docker.com/linux/static/stable/aarch64/docker-${docker_version}.tgz | tar -xz -C /usr/lib; \
-       else \
-         echo "Unsupported architecture: $(dpkg --print-architecture)"; exit 1; \
-       fi \
-    && ln -s /usr/lib/docker/docker /usr/bin/docker \
-    && mkdir -p /etc/ansible/roles \
-    && echo 'localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3' > /etc/ansible/hosts \
-    && apt-get clean \
-    && useradd -m -u 1000 ansible-1000 \
-    && useradd -m -u 1001 ansible-1001 \
-    && useradd -m -u 10000 ansible-10000 \
-    && echo 'ansible-1000   ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ansible \
-    && echo 'ansible-1001   ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible \
-    && echo 'ansible-10000  ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible
+# Upgrade system packages in one dedicated layer (run less frequently)
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN gem install bundler
-RUN pip3 install jmespath
+# Install prerequisites, add 1Password repo, install 1password-cli, cleanup apt junk
+RUN apt-get update && \
+    apt-get -y --no-install-recommends install \
+      curl \
+      gnupg \
+      apt-utils \
+      ruby-full \
+      sshpass \
+      git \
+      sudo \
+      python3-pip \
+      wget \
+      tzdata \
+      cargo \
+      rsync && \
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /etc/apt/sources.list.d/1password.list && \
+    mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
+    curl -sS https://downloads.1password.com/linux/debsig/1password.pol | tee /etc/debsig/policies/AC2D62742012EA22/1password.policies && \
+    apt-get update && \
+    apt-get -y --no-install-recommends install 1password-cli && \
+    apt-get autoremove -y && \
+    apt-get autoclean -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/* && \
+    rm -rf /root/.ansible && \
+    rm -rf /root/.cache
+
+# Install defferent dependencies
+RUN gem install bundler && \
+    python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install --no-cache-dir -r requirements.txt
+
+# Set up Ansible environment and create users with sudo privileges
+RUN mkdir -p /etc/ansible/roles && \
+    echo 'localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3' > /etc/ansible/hosts && \
+    useradd -m -u 1000 ansible-1000 && \
+    useradd -m -u 1001 ansible-1001 && \
+    useradd -m -u 10000 ansible-10000 && \
+    echo 'ansible-1000   ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ansible && \
+    echo 'ansible-1001   ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible && \
+    echo 'ansible-10000  ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible && \
+    PYTHON_SITE_PACKAGES=$(python3 -c 'import site; print(site.getsitepackages()[0])') && \
+    echo "export ANSIBLE_STRATEGY_PLUGINS=${PYTHON_SITE_PACKAGES}/ansible_mitogen" > /etc/profile.d/ansible-global-settings.sh && \
+    chmod +x /entrypoint.sh
+
 WORKDIR /mnt
 
 USER ansible-10000
 
-CMD [ "ansible-playbook", "playbook.yml" ]
+# Use the entrypoint script and default command
+ENTRYPOINT ["/entrypoint.sh"]
+CMD [ "ansible", "--version" ]
