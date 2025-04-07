@@ -5,6 +5,9 @@ on:
       - main
   release:
     types: [published]
+  push:
+    branches:
+      - main
 env:
   IMAGE_NAME: ghcr.io/quiknode-labs/docker-ansible-core
   LATEST_OS: ubuntu
@@ -18,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu]
-        version: [v2.16, v2.17]
+        version: [v2.16]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,7 +63,7 @@ jobs:
       - name: Build Image and push to ghcr only on Release
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           labels: |
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.source=${{ github.repositoryUrl }}
@@ -71,6 +74,4 @@ jobs:
           file: ./Dockerfile.${{ matrix.os }}
           tags: ${{ steps.prep.outputs.tags }}
           # Push only on release events; for PRs, just build.
-          push: ${{ github.event_name == 'release' }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          push: true
