@@ -34,8 +34,6 @@ RUN apt-get update && \
       rsync \
       openssh-client \
       less \
-      gcc-multilib \
-      libc-devtools \
       make \
       patch \
       && \
