@@ -2,6 +2,7 @@ FROM ubuntu:22.04
 
 LABEL org.opencontainers.image.title="quiknode-labs/docker-ansible-core" \
       org.opencontainers.image.description="Ansible Core + additions"
+
 ENV DEBIAN_FRONTEND=noninteractive \
     DEFAULT_LOCAL_TMP=/var/tmp/.ansible/tmp
 
@@ -25,8 +26,7 @@ RUN apt-get update && \
        wget \
        tzdata \
        cargo \
-       rsync \
-       gosu
+       rsync
 
 # 1Password CLI installation steps
 RUN curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
