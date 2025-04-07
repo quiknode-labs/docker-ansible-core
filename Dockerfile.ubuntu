@@ -34,6 +34,10 @@ RUN apt-get update && \
       rsync \
       openssh-client \
       less \
+      gcc-multilib \
+      libc-devtools \
+      make \
+      patch \
       && \
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /etc/apt/sources.list.d/1password.list && \
@@ -48,7 +52,9 @@ RUN apt-get update && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/* && \
     rm -rf /root/.ansible && \
-    rm -rf /root/.cache
+    rm -rf /root/.cache && \
+    apt-get update
+# The latest apt-get update is needed to ensure that the apt cache is up to date for the backward compatibility
 
 # Install defferent dependencies
 RUN gem install bundler && \
