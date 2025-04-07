@@ -3,10 +3,16 @@ on:
   pull_request:
     branches:
       - main
+  # this will work for manual release
   release:
     types:
-      - created
       - published
+  # this will work for auto release
+  # triggered by release-please action
+  workflow_run:
+    workflows: ["release-please"]
+    types:
+      - completed
 env:
   IMAGE_NAME: ghcr.io/quiknode-labs/docker-ansible-core
   LATEST_OS: ubuntu
