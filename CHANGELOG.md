@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.3.1...v1.4.0) (2025-04-07)
+
+
+### Features
+
+* TEC-1680/add-native-mitogen-integration ([52fb7c8](https://github.com/quiknode-labs/docker-ansible-core/commit/52fb7c8318fccc355076448538f24fc3249ae421))
+* TEC-1680/add-native-mitogen-integration ([afb6e0c](https://github.com/quiknode-labs/docker-ansible-core/commit/afb6e0c7b0768b81267229ee57263b15cf110411))
+
+
+### Bug Fixes
+
+* address Chase's comments ([135c0a7](https://github.com/quiknode-labs/docker-ansible-core/commit/135c0a7e7d2764ab41690a7af2bf195812ee1781))
+* remove gosu ([8f862ca](https://github.com/quiknode-labs/docker-ansible-core/commit/8f862cac61a58a00d4be00f011c903d634ee05fe))
+
 ## [1.3.0](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.2.0...v1.3.0) (2025-03-14)
 
 
