@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.2](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.1...v1.4.2) (2025-04-07)
+
+
+### Bug Fixes
+
+* TEC-1680/fix permissions issues ([9fa1b68](https://github.com/quiknode-labs/docker-ansible-core/commit/9fa1b68dd1a5a21bc522c1033c972b292112d0e7))
+* TEC-1680/polishing-after-merge ([062a934](https://github.com/quiknode-labs/docker-ansible-core/commit/062a9347a0efa19dd9ba9d75eb714ad27b3628d8))
+
 ## [1.4.0](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.3.1...v1.4.0) (2025-04-07)
 
 
