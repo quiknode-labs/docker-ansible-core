@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.4](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.3...v1.4.4) (2025-04-07)
+
+
+### Bug Fixes
+
+* TEC-1680/more-fixes ([73ebcc1](https://github.com/quiknode-labs/docker-ansible-core/commit/73ebcc146aee55f10d47aaa683c56684421e16e7))
+* TEC-1680/more-fixes ([c64180b](https://github.com/quiknode-labs/docker-ansible-core/commit/c64180b589d3b682a659e1efc55905badf7b922b))
+
 ## [1.4.2](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.1...v1.4.2) (2025-04-07)
 
 
