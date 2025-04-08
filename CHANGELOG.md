@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.6](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.5...v1.4.6) (2025-04-08)
+
+
+### Bug Fixes
+
+* final changes to support ANSIBLE_STRATEGY_PLUGINS ([8abb08f](https://github.com/quiknode-labs/docker-ansible-core/commit/8abb08f5ab420aa078f32cd13d98c189d2984aec))
+* TEC-1680/more-fixes2 ([f228202](https://github.com/quiknode-labs/docker-ansible-core/commit/f228202992c39143011487b76c469ac2c948a826))
+* TEC-1680/more-fixes2 ([450dcca](https://github.com/quiknode-labs/docker-ansible-core/commit/450dccad03c20aab30086a65b3362f366d7bfcd2))
+
 ## [1.4.4](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.3...v1.4.4) (2025-04-07)
 
 
