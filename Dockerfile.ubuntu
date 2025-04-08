@@ -3,13 +3,14 @@ FROM ubuntu:22.04
 LABEL org.opencontainers.image.title="quiknode-labs/docker-ansible-core" \
       org.opencontainers.image.description="Ansible Core + additions"
 
+# ANSIBLE_STRATEGY_PLUGINS is Hardcoded, because it's impossible to set dinamically
 ENV DEBIAN_FRONTEND=noninteractive \
-    DEFAULT_LOCAL_TMP=/var/tmp/.ansible/tmp
+    DEFAULT_LOCAL_TMP=/var/tmp/.ansible/tmp \
+    ANSIBLE_STRATEGY_PLUGINS=/usr/local/lib/python3.10/dist-packages/ansible_mitogen
 
 ONBUILD USER root
 
 COPY requirements/requirements.txt ./requirements.txt
-COPY entrypoint.sh /entrypoint.sh
 
 # Upgrade system packages in one dedicated layer (run less frequently)
 RUN apt-get update && \
@@ -33,6 +34,9 @@ RUN apt-get update && \
       cargo \
       rsync \
       openssh-client \
+      less \
+      make \
+      patch \
       && \
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /etc/apt/sources.list.d/1password.list && \
@@ -47,7 +51,10 @@ RUN apt-get update && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/* && \
     rm -rf /root/.ansible && \
-    rm -rf /root/.cache
+    rm -rf /root/.cache && \
+    apt-get update
+# The latest apt-get update command is needed to ensure that the apt cache is up to date for the backward compatibility
+# Some DroneCI pupelines run apt-get install without apt-get update before
 
 # Install defferent dependencies
 RUN gem install bundler && \
@@ -63,14 +70,17 @@ RUN mkdir -p /etc/ansible/roles && \
     echo 'ansible-1000   ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ansible && \
     echo 'ansible-1001   ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible && \
     echo 'ansible-10000  ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible && \
-    PYTHON_SITE_PACKAGES=$(python3 -c 'import site; print(site.getsitepackages()[0])') && \
-    echo "export ANSIBLE_STRATEGY_PLUGINS=${PYTHON_SITE_PACKAGES}/ansible_mitogen" > /etc/profile.d/ansible-global-settings.sh && \
-    chmod +x /entrypoint.sh
+    EXPECTED_PATH=$(python3 -c 'import site; print(site.getsitepackages()[0])') && \
+    if [ "$ANSIBLE_STRATEGY_PLUGINS" != "${EXPECTED_PATH}/ansible_mitogen" ]; then \
+      echo "Error: ANSIBLE_STRATEGY_PLUGINS is set to '$ANSIBLE_STRATEGY_PLUGINS' but expected '${EXPECTED_PATH}/ansible_mitogen'. Please, update Dockerfile.ubuntu."; \
+      exit 1; \
+    else \
+      echo "ANSIBLE_STRATEGY_PLUGINS is correctly set to '$ANSIBLE_STRATEGY_PLUGINS'"; \
+    fi
 
 WORKDIR /mnt
 
 USER ansible-10000
 
 # Use the entrypoint script and default command
-ENTRYPOINT ["/entrypoint.sh"]
 CMD [ "ansible", "--version" ]
