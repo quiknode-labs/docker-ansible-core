@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.7](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.6...v1.4.7) (2025-04-14)
+
+
+### Bug Fixes
+
+* TEC-1754/docker-command-not-found-error ([9a7b4f9](https://github.com/quiknode-labs/docker-ansible-core/commit/9a7b4f912750d6a2a5c960a98890b66ac42c4dee))
+* TEC-1754/docker-command-not-found-error ([65be402](https://github.com/quiknode-labs/docker-ansible-core/commit/65be402ba0ae4a714677a61f7ed1bf49448d5de4))
+
 ## [1.4.6](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.5...v1.4.6) (2025-04-08)
 
 
