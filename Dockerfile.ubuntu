@@ -18,7 +18,11 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install prerequisites, add 1Password repo, install 1password-cli, cleanup apt junk
+# Note:
+#  - openssh-client: for key management (like ssh-copy-id)
+#  - less: for ansible commands (like ansible-doc)
+#  - make, patch, cargo, clang, etc.: for compiling requirements during role_chain_build
+#  - ca-certificates: required for 1password-cli and docker cli
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
       curl \
@@ -31,19 +35,26 @@ RUN apt-get update && \
       python3-pip \
       wget \
       tzdata \
-      cargo \
       rsync \
       openssh-client \
       less \
       make \
       patch \
+      cargo \
+      clang \
+      libclang-dev \
+      llvm-dev \
+      ca-certificates \
       && \
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | tee /etc/apt/sources.list.d/1password.list && \
     mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
     curl -sS https://downloads.1password.com/linux/debsig/1password.pol | tee /etc/debsig/policies/AC2D62742012EA22/1password.policies && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"${UBUNTU_CODENAME:-$VERSION_CODENAME}\") stable" | tee /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
     apt-get -y --no-install-recommends install 1password-cli && \
+    apt-get -y --no-install-recommends install docker-ce-cli && \
     apt-get autoremove -y && \
     apt-get autoclean -y && \
     apt-get clean && \
