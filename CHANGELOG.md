@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.8](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.7...v1.4.8) (2025-07-02)
+
+
+### Bug Fixes
+
+* TEC-2210 - install more popular deps and upgrade ansible ([0d8d77f](https://github.com/quiknode-labs/docker-ansible-core/commit/0d8d77fa6a0c9507c4d78d24e4ed16d986349902))
+* TEC-2210 - install more popular deps and upgrade ansible ([3d02e99](https://github.com/quiknode-labs/docker-ansible-core/commit/3d02e9943ba9bb9ab42fd0c919b08d479defb9f8))
+
 ## [1.4.7](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.6...v1.4.7) (2025-04-14)
 
 
