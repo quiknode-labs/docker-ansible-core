@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.9](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.8...v1.4.9) (2025-07-15)
+
+
+### Bug Fixes
+
+* also add for 2.17 ([d79cd00](https://github.com/quiknode-labs/docker-ansible-core/commit/d79cd0096bcdbba794fcf7c3698e7859ed21223f))
+* Sjoshi10 patch add netaddr ([d6093df](https://github.com/quiknode-labs/docker-ansible-core/commit/d6093df97d6eefa75e6c1b79dd86927cfda692bf))
+
 ## [1.4.8](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.7...v1.4.8) (2025-07-02)
 
 
