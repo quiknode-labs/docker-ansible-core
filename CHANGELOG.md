@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.9...v1.5.0) (2025-07-25)
+
+
+### Features
+
+* Trigger the release ([40bceb2](https://github.com/quiknode-labs/docker-ansible-core/commit/40bceb256da67df2dd97f42db8ee335bf0aec304))
+* Trigger the release ([17bce0c](https://github.com/quiknode-labs/docker-ansible-core/commit/17bce0ce947cefe4234cfbed36e4c87ce056201a))
+
 ## [1.4.9](https://github.com/quiknode-labs/docker-ansible-core/compare/v1.4.8...v1.4.9) (2025-07-15)
 
 
